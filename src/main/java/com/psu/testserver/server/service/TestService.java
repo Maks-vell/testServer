@@ -2,9 +2,9 @@ package com.psu.testserver.server.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.psu.testserver.model.Student;
+import com.psu.testserver.model.StudentModel;
 import com.psu.testserver.enums.TestPassStatus;
-import com.psu.testserver.model.StudentList;
+import com.psu.testserver.model.StudentListModel;
 import com.psu.testserver.server.annotation.Inject;
 import com.psu.testserver.server.annotation.PostConstruct;
 import com.psu.testserver.server.annotation.Request;
@@ -22,10 +22,10 @@ public class TestService extends Service {
 
     private boolean isSharingTest;
 
-    private Map<Integer, Student> students;
+    private Map<Integer, StudentModel> students;
 
     @PostConstruct
-    private void postConstruct() {
+    public void postConstruct() {
         this.sharingTest = null;
         this.isSharingTest = false;
         this.students = new HashMap<>();
@@ -44,7 +44,7 @@ public class TestService extends Service {
         }
 
         this.responseTransmitter.response(this.sharingTest, id);
-        this.students.put(id, new Student(studentName, TestPassStatus.RECEIVED));
+        this.students.put(id, new StudentModel(studentName, TestPassStatus.RECEIVED));
     }
 
     @Request(path = "cancelTest", params = {})
@@ -53,9 +53,9 @@ public class TestService extends Service {
             return;
         }
 
-        Student student = this.students.get(id);
-        student.testPassStatus = TestPassStatus.PASS_OF;
-        this.students.replace(id, student);
+        StudentModel studentModel = this.students.get(id);
+        studentModel.testPassStatus = TestPassStatus.PASS_OF;
+        this.students.replace(id, studentModel);
     }
 
     @Request(path = "startSharingTest", params = {"sharingTestName"})
@@ -69,7 +69,7 @@ public class TestService extends Service {
             this.sharingTest = tryGetCurrentTestInStr(sharingTestName);
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
-            responseTransmitter.response("ERROR/Test not found", id);
+            this.responseTransmitter.response("ERROR/Test not found", id);
             return;
         }
 
@@ -127,12 +127,12 @@ public class TestService extends Service {
 
     @Request(path = "getStudents", params = {})
     private void getStudents(String request, int id) {
-        StudentList studentList = new StudentList(this.students.values().stream().toList());
+        StudentListModel studentListModel = new StudentListModel(this.students.values().stream().toList());
 
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
-        responseTransmitter.response(gson.toJson(studentList), id);
+        responseTransmitter.response(gson.toJson(studentListModel), id);
     }
 }
 

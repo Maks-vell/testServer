@@ -1,4 +1,4 @@
-package com.psu.testserver.javafx.model;
+package com.psu.testserver.model;
 
 import java.util.List;
 

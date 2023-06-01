@@ -1,4 +1,4 @@
-package com.psu.testserver.javafx.model;
+package com.psu.testserver.model;
 
 public class QuestionModel {
     public int number;

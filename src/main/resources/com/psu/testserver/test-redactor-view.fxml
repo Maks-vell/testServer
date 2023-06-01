@@ -9,9 +9,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: #2E3348;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.psu.testserver.javafx.controller.TestRedactorController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: #2E3348;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Text fill="WHITE" layoutX="231.0" layoutY="87.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Создание тестов" wrappingWidth="538.13671875">
+      <Text fill="WHITE" layoutX="231.0" layoutY="87.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Редактор тестов" wrappingWidth="538.13671875">
          <font>
             <Font name="Impact" size="72.0" />
          </font>
@@ -47,7 +47,7 @@
                </font>
             </Label>
             <ListView fx:id="questionListView" layoutX="77.0" layoutY="8.0" prefHeight="496.0" prefWidth="324.0" />
-            <Button fx:id="addQuestionButton" layoutX="121.0" layoutY="520.0" mnemonicParsing="false" prefHeight="46.0" prefWidth="236.0" style="-fx-background-color: #2E3348;" text="Добавить вопрос" textFill="WHITE">
+            <Button fx:id="addQuestionButton" layoutX="231.0" layoutY="520.0" mnemonicParsing="false" prefHeight="46.0" prefWidth="229.0" style="-fx-background-color: #2E3348;" text="Добавить вопрос" textFill="WHITE">
                <font>
                   <Font name="Impact" size="24.0" />
                </font>
@@ -70,6 +70,19 @@
                   <Font name="Impact" size="24.0" />
                </font>
             </Label>
+            <Label fx:id="errorNameLabel" layoutX="822.0" layoutY="416.0" text="Введите имя теста" textFill="RED" visible="false">
+               <font>
+                  <Font name="Impact" size="16.0" />
+               </font>
+            </Label>
+            <Button fx:id="deleteQuestionButton" layoutX="36.0" layoutY="521.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="131.0" style="-fx-background-color: #2E3348;" text="Удалить" textFill="WHITE">
+               <font>
+                  <Font name="Impact" size="24.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
          </children>
       </AnchorPane>
    </children>

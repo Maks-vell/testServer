@@ -16,5 +16,7 @@ module com.psu.testserver {
     opens com.psu.testserver.javafx to javafx.fxml;
     exports com.psu.testserver.javafx.client;
     opens com.psu.testserver.javafx.client to javafx.fxml;
-    opens com.psu.testserver.javafx.model to com.google.gson;
+    opens com.psu.testserver.model to com.google.gson;
+    exports com.psu.testserver.enums;
+    opens com.psu.testserver.enums to com.google.gson;
 }

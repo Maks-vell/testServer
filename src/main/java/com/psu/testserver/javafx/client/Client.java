@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.Objects;
 
 public class Client {
+    private final long RESPONSE_WAITING_TIME = 8 * 1000;
     private Socket socket;
     private BufferedReader inputStream;
     private BufferedWriter outputStream;
@@ -30,7 +31,7 @@ public class Client {
         }
     }
 
-    public void tryRequest(String request) throws IOException {
+    private void tryRequest(String request) throws IOException {
         this.outputStream.write(request);
         this.outputStream.newLine();
         this.outputStream.flush();
@@ -43,7 +44,9 @@ public class Client {
     }
 
     private String getResponse() throws IOException {
-        while (true) {
+        long startWaitingResponseTime = System.currentTimeMillis();
+
+        while (System.currentTimeMillis() - startWaitingResponseTime < RESPONSE_WAITING_TIME) {
             if (this.inputStream.ready()) {
                 String response = this.inputStream.readLine();
                 if (Objects.equals(RESTParser.getCode(response), "ERROR")) {
@@ -52,6 +55,8 @@ public class Client {
                 return response;
             }
         }
+
+        throw new IOException("waiting response time is out");
     }
 
     public void closeConnection() throws IOException {

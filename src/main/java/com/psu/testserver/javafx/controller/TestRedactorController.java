@@ -2,8 +2,8 @@ package com.psu.testserver.javafx.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.psu.testserver.javafx.model.QuestionModel;
-import com.psu.testserver.javafx.model.TestModel;
+import com.psu.testserver.model.QuestionModel;
+import com.psu.testserver.model.TestModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,15 +15,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import lombok.Setter;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class TestRedactorController {
+public class TestRedactorController implements Controller {
 
     @FXML
     private Button readyButton;
@@ -48,30 +47,84 @@ public class TestRedactorController {
     @FXML
     private TextField nameTestField;
 
+    @FXML
+    private Label errorNameLabel;
+
+    @FXML
+    private Button deleteQuestionButton;
+
+    @Setter
+    private boolean isEdit;
+    @Setter
+    private String editableTestName;
+    @Setter
+    private MainController mainController;
+
     private QuestionModel selectedQuestionModel;
 
     @FXML
     void initialize() {
         ObservableList<String> items = FXCollections.observableArrayList();
         this.questionListView.setItems(items);
+        LoadEditableTest();
 
-        this.questionList = new ArrayList<>();
         this.questionListView.setCellFactory(ComboBoxListCell.forListView());
         this.questionListView.setEditable(true);
 
-
         this.addQuestionButton.setOnAction(this::addQuestionButtonClick);
-        this.questionListView.setOnEditStart(this::selectQuestion);
+        this.questionListView.setOnEditStart(this::selectNewQuestionModel);
         this.questionField.setOnKeyTyped(this::updateQuestionField);
         this.answerField.setOnKeyTyped(this::updateAnswerField);
         this.readyButton.setOnAction(this::readyButtonClick);
+        this.deleteQuestionButton.setOnAction(this::deleteQuestionButtonClick);
+    }
+
+    private void LoadEditableTest() {
+        try {
+            tryLoadEditableTest();
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+            Stage stage = (Stage) this.readyButton.getScene().getWindow();
+            stage.close();
+        }
+    }
+
+    private void tryLoadEditableTest() throws IOException {
+        if (!this.isEdit) {
+            this.questionList = new ArrayList<>();
+            return;
+        }
+        this.nameTestField.setText(getEditableTestNameNoExtension());
+
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        FileReader fileReader = new FileReader(String.format("tests\\%s", this.editableTestName));
+        TestModel testModel = gson.fromJson(fileReader, TestModel.class);
+        fileReader.close();
+
+        this.questionList = testModel.questions;
+
+        updateListView();
+    }
+
+    private String getEditableTestNameNoExtension() {
+        return this.editableTestName.split("\\.")[0];
+    }
+
+    private void updateListView() {
+        this.questionListView.getItems().clear();
+        for (QuestionModel newQuestion : this.questionList) {
+            this.questionListView.getItems().add(String.format("%d.%s", newQuestion.number, newQuestion.question));
+        }
     }
 
     private void addQuestionButtonClick(ActionEvent event) {
         QuestionModel newQuestion = new QuestionModel("", "", this.questionList.size() + 1);
         this.questionList.add(newQuestion);
+
         this.questionListView.getItems().add(String.format("%d.%s", newQuestion.number, newQuestion.question));
         this.questionListView.edit(newQuestion.number - 1);
+
         formUpdate();
     }
 
@@ -82,11 +135,27 @@ public class TestRedactorController {
         this.answerField.setText(selectedQuestionModel.answer);
     }
 
-    private void selectQuestion(ListView.EditEvent<String> stringEditEvent) {
+    private void deleteQuestionButtonClick(ActionEvent actionEvent) {
+        if (this.selectedQuestionModel == null) {
+            return;
+        }
+
+        for (QuestionModel questionModel : this.questionList) {
+            if (questionModel.number > this.selectedQuestionModel.number) {
+                questionModel.number--;
+            }
+        }
+
+        this.questionList.remove(this.selectedQuestionModel.number - 1);
+
+        updateListView();
+    }
+
+    private void selectNewQuestionModel(ListView.EditEvent<String> stringEditEvent) {
         formUpdate();
     }
 
-    private void updateAnswerField(KeyEvent keyEvent) {
+    private void updateQuestionField(KeyEvent keyEvent) {
         updateQuestionModel();
     }
 
@@ -98,33 +167,46 @@ public class TestRedactorController {
                 String.format("%d.%s", selectedQuestionModel.number, selectedQuestionModel.question));
     }
 
-    private void updateQuestionField(KeyEvent keyEvent) {
+    private void updateAnswerField(KeyEvent keyEvent) {
         updateQuestionModel();
     }
 
     private void readyButtonClick(ActionEvent actionEvent) {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-
         if (this.nameTestField.getText().length() < 1) {
+            this.errorNameLabel.setVisible(true);
             return;
         }
 
-        File folder = new File("tests");
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-
         try {
-            FileOutputStream out = new FileOutputStream(String.format("tests\\%s.json", this.nameTestField.getText()));
-            out.write(gson.toJson(new TestModel(this.questionList)).getBytes());
-            out.close();
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            trySafeTestInJson();
+        } catch (IOException ex) {
+            System.out.println("Can't save file");
+            return;
         }
 
+        this.mainController.updateTestListView();
         Stage stage = (Stage) this.readyButton.getScene().getWindow();
         stage.close();
     }
 
+    private void trySafeTestInJson() throws IOException {
+        checkFolder();
+
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+
+        FileOutputStream fileOutputStream = new FileOutputStream(String.format("tests\\%s.json", this.nameTestField.getText()));
+
+        fileOutputStream.write(gson.toJson(new TestModel(this.questionList)).getBytes());
+        fileOutputStream.close();
+    }
+
+    private void checkFolder() throws IOException {
+        File folder = new File("tests");
+        if (!folder.exists()) {
+            if (!folder.mkdir()) {
+                throw new IOException("Can't create directory");
+            }
+        }
+    }
 }
