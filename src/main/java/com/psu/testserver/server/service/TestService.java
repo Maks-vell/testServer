@@ -40,9 +40,6 @@ public class TestService extends Service {
         log.info("TestService >> getTest");
 
         String studentName = RESTParser.getParameter(request, 1);
-        if (studentName.isEmpty()) {
-            return;
-        }
 
         if (!this.isSharingTest) {
             this.responseTransmitter.response("ERROR/Test is not sharing", id);

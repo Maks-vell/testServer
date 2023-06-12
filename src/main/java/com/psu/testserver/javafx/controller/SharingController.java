@@ -65,11 +65,12 @@ public class SharingController implements Controller {
         this.studentModelList = new ArrayList<>();
         this.closeSharingButton.setOnAction(this::closeSharing);
 
-        startGetStudents();
+        startUpdateStudentStatus();
     }
 
-    private void startGetStudents() {
+    private void startUpdateStudentStatus() {
         this.updateStudentsTimeline = new Timeline(new KeyFrame(Duration.seconds(UPDATE_STUDENT_TIME), this::getStudents));
+        this.updateStudentsTimeline.setCycleCount(UPDATE_STUDENT_TIME * 10000);
         this.updateStudentsTimeline.play();
     }
 

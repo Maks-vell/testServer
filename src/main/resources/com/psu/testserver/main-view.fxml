@@ -54,6 +54,11 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
+            <Text fx:id="chooseTestWarnLabel" fill="#fc0000" layoutX="296.0" layoutY="32.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Выберите тест!" visible="false" wrappingWidth="122.13671875">
+               <font>
+                  <Font name="Impact" size="18.0" />
+               </font>
+            </Text>
          </children>
       </AnchorPane>
       <ListView fx:id="testListView" layoutY="120.0" prefHeight="580.0" prefWidth="302.0" style="-fx-background-color: #AAAAAA;" />

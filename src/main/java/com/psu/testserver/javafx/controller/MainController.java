@@ -10,6 +10,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 
@@ -39,6 +41,9 @@ public class MainController implements Controller {
 
     @FXML
     private ListView<String> testListView;
+
+    @FXML
+    private Text chooseTestWarnLabel;
 
     @FXML
     void initialize() {
@@ -75,8 +80,10 @@ public class MainController implements Controller {
 
     private void shareTestButtonClick(ActionEvent event) {
         if (!isSelectItem()) {
+            this.chooseTestWarnLabel.setVisible(true);
             return;
         }
+        this.chooseTestWarnLabel.setVisible(false);
 
         try {
             tryStartSharingWindow();
@@ -112,6 +119,7 @@ public class MainController implements Controller {
     }
 
     private void createTestButtonClick(ActionEvent event) {
+        this.chooseTestWarnLabel.setVisible(false);
         try {
             tryStartTestRedactorWindow(false);
         } catch (IOException ex) {
@@ -138,8 +146,10 @@ public class MainController implements Controller {
 
     private void editTestButtonClick(ActionEvent actionEvent) {
         if (!isSelectItem()) {
+            this.chooseTestWarnLabel.setVisible(true);
             return;
         }
+        this.chooseTestWarnLabel.setVisible(false);
 
         try {
             tryStartTestRedactorWindow(true);
@@ -150,8 +160,10 @@ public class MainController implements Controller {
 
     private void deleteTestButtonClick(ActionEvent actionEvent) {
         if (!isSelectItem()) {
+            this.chooseTestWarnLabel.setVisible(true);
             return;
         }
+        this.chooseTestWarnLabel.setVisible(false);
 
         String selectedTest = this.testListView.getSelectionModel().getSelectedItem();
         File file = new File(String.format("tests\\%s", selectedTest));

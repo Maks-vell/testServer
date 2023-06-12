@@ -2,6 +2,7 @@ package com.psu.testserver.server;
 
 import com.psu.testserver.server.context.ApplicationContext;
 import com.psu.testserver.server.transmitter.RequestTransmitter;
+import lombok.Getter;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -11,7 +12,8 @@ public class ClientSession extends Thread {
     private static final Logger log = Logger.getLogger(ClientSession.class);
     private final RequestTransmitter requestTransmitter;
     private final Socket clientSocket;
-    private final int id;
+    @Getter
+    private final int clientId;
 
     private BufferedReader inputStream;
     private BufferedWriter outputStream;
@@ -22,7 +24,7 @@ public class ClientSession extends Thread {
         this.requestTransmitter.setContext(context);
 
         this.clientSocket = clientSocket;
-        this.id = id;
+        this.clientId = id;
     }
 
     public void run() {
@@ -40,7 +42,7 @@ public class ClientSession extends Thread {
 
         while (this.isLaunch) {
             if (this.inputStream.ready()) {
-                this.requestTransmitter.request(this.inputStream.readLine(), id);
+                this.requestTransmitter.request(this.inputStream.readLine(), this.clientId);
             }
         }
     }

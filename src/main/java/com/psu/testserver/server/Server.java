@@ -37,13 +37,36 @@ public class Server {
     }
 
     private void initializeNewClientSession(ApplicationContext context, Socket clientSocket) {
-        ClientSession clientSession = new ClientSession(context, clientSocket, this.clientSessions.size());
+        ClientSession clientSession = new ClientSession(context, clientSocket, generateId());
         this.clientSessions.add(clientSession);
         clientSession.start();
     }
 
-    public ClientSession getClientSession(int id) {
-        return this.clientSessions.get(id);
+    private int generateId() {
+        int id = (int) (Math.random() * 1000000);
+
+        while (checkIdExistence(id)) {
+            id = (int) (Math.random() * 1000000);
+        }
+        return id;
+    }
+
+    private boolean checkIdExistence(int id) {
+        for (ClientSession clientSession : this.clientSessions) {
+            if (clientSession.getClientId() == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ClientSession getClientSession(int id) throws IOException {
+        for (ClientSession clientSession : this.clientSessions) {
+            if (clientSession.getClientId() == id) {
+                return clientSession;
+            }
+        }
+        throw new IOException("Client with " + id + "is not exists");
     }
 
     public int getClientCount() {
