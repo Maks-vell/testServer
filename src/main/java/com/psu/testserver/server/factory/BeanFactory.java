@@ -7,12 +7,14 @@ import com.psu.testserver.server.configurator.JavaBeanConfigurator;
 import com.psu.testserver.server.context.ApplicationContext;
 import com.psu.testserver.server.annotation.Inject;
 import lombok.Getter;
+import org.apache.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 public class BeanFactory {
+    private static final Logger log = Logger.getLogger(BeanFactory.class);
     private final Configuration configuration;
     private final ApplicationContext applicationContext;
 
@@ -36,7 +38,7 @@ public class BeanFactory {
         try {
             bean = tryBeanInitialize(implementationClass);
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+           log.error(ex.getMessage());
         }
 
         return bean;

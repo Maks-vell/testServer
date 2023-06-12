@@ -2,6 +2,7 @@ package com.psu.testserver.server;
 
 import com.psu.testserver.server.annotation.PostConstruct;
 import com.psu.testserver.server.context.ApplicationContext;
+import org.apache.log4j.Logger;
 
 import java.net.*;
 import java.io.*;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Server {
+    private static final Logger log = Logger.getLogger(Server.class);
     private final int SERVER_PORT = 3384;
 
     private ServerSocket serverSocket;
@@ -24,11 +26,11 @@ public class Server {
 
     public void start(ApplicationContext context) throws IOException {
         this.isLaunch = true;
-        System.out.printf("Server started on localhost:%d", SERVER_PORT);
+        log.info("Server started on localhost:" + SERVER_PORT);
 
         while (this.isLaunch) {
             Socket clientSocket = this.serverSocket.accept();
-            System.out.println(" >> " + "Client No:" + this.clientSessions.size() + " started!");
+            log.info("Client No:" + this.clientSessions.size() + " started!");
 
             initializeNewClientSession(context, clientSocket);
         }
@@ -48,12 +50,14 @@ public class Server {
         return this.clientSessions.size();
     }
 
-    public void stop() throws IOException {
+    public void tryStop() throws IOException {
         this.isLaunch = false;
         for (ClientSession clientSession : this.clientSessions) {
             clientSession.stopSession();
             this.clientSessions.remove(clientSession);
         }
         this.serverSocket.close();
+
+        log.info("Server was stopped");
     }
 }

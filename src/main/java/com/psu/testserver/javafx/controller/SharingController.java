@@ -15,19 +15,20 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import lombok.Setter;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class SharingController implements Controller {
+    private static final Logger log = Logger.getLogger(SharingController.class);
 
-    private final int TIME_BETWEEN_GET_STUDENTS = 2 * 1000;
+    private final int UPDATE_STUDENT_TIME = 3;
     @Setter
-    private String sharingTestName;
-
+    private String sharingTestName = "";
+    @Setter
+    private boolean isWithAnswers = false;
     @FXML
     private ListView<String> studentListView;
 
@@ -39,31 +40,37 @@ public class SharingController implements Controller {
 
     private Client client;
 
-    public List<StudentModel> studentModelList;
+    private List<StudentModel> studentModelList;
 
-    private Timer timerGetStudents;
+    private Timeline updateStudentsTimeline;
+
 
     @FXML
     void initialize() {
+        if (this.sharingTestName.isEmpty()) {
+            Stage stage = (Stage) this.closeSharingButton.getScene().getWindow();
+            stage.close();
+            return;
+        }
+
         try {
             tryInitializeClient();
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
             closeSharing(new ActionEvent());
         }
-        this.testNameLabel.setText(this.sharingTestName);
+        this.client.request(String.format("POST/testService/startSharingTest/%s/%s", this.sharingTestName, this.isWithAnswers));
 
+        this.testNameLabel.setText(this.sharingTestName);
         this.studentModelList = new ArrayList<>();
+        this.closeSharingButton.setOnAction(this::closeSharing);
 
         startGetStudents();
-
-        this.closeSharingButton.setOnAction(this::closeSharing);
     }
 
     private void startGetStudents() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), this::getStudents));
-        timeline.setCycleCount(1000);
-        timeline.play();
+        this.updateStudentsTimeline = new Timeline(new KeyFrame(Duration.seconds(UPDATE_STUDENT_TIME), this::getStudents));
+        this.updateStudentsTimeline.play();
     }
 
     private void getStudents(ActionEvent actionEvent) {
@@ -72,7 +79,7 @@ public class SharingController implements Controller {
         try {
             studentListModelJSON = client.requestWithResponse("GET/testService/getStudents");
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
         }
 
         GsonBuilder builder = new GsonBuilder();
@@ -93,23 +100,20 @@ public class SharingController implements Controller {
     private void tryInitializeClient() throws IOException {
         this.client = new Client();
         this.client.initConnection("127.0.0.1", 3384);
-
-        this.client.request(String.format("POST/testService/startSharingTest/%s", this.sharingTestName));
     }
 
     private void closeSharing(ActionEvent event) {
         try {
             tryCloseSharing();
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 
     private void tryCloseSharing() throws IOException {
-        this.timerGetStudents.cancel();
-
         this.client.closeConnection();
         this.client.request("GET/testService/stopSharingTest");
+        this.updateStudentsTimeline.stop();
 
         Stage stage = (Stage) this.closeSharingButton.getScene().getWindow();
         stage.close();

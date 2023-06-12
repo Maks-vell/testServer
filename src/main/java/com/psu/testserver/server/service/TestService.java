@@ -2,19 +2,23 @@ package com.psu.testserver.server.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.psu.testserver.model.QuestionModel;
 import com.psu.testserver.model.StudentModel;
 import com.psu.testserver.enums.TestPassStatus;
 import com.psu.testserver.model.StudentListModel;
+import com.psu.testserver.model.TestModel;
 import com.psu.testserver.server.annotation.Inject;
 import com.psu.testserver.server.annotation.PostConstruct;
 import com.psu.testserver.server.annotation.Request;
 import com.psu.testserver.lib.RESTParser;
 import com.psu.testserver.server.transmitter.ResponseTransmitter;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
 
 public class TestService extends Service {
+    private static final Logger log = Logger.getLogger(TestService.class);
     @Inject
     protected ResponseTransmitter responseTransmitter;
 
@@ -33,6 +37,8 @@ public class TestService extends Service {
 
     @Request(path = "getTest", params = {"studentName"})
     private void getTest(String request, int id) {
+        log.info("TestService >> getTest");
+
         String studentName = RESTParser.getParameter(request, 1);
         if (studentName.isEmpty()) {
             return;
@@ -49,6 +55,8 @@ public class TestService extends Service {
 
     @Request(path = "cancelTest", params = {})
     private void cancelTest(String request, int id) {
+        log.info("TestService >> cancelTest");
+
         if (!this.isSharingTest || !this.students.containsKey(id)) {
             return;
         }
@@ -60,21 +68,42 @@ public class TestService extends Service {
 
     @Request(path = "startSharingTest", params = {"sharingTestName"})
     private void startSharingTest(String request, int id) {
+        log.info("TestService >> startSharingTest");
+
         String sharingTestName = RESTParser.getParameter(request, 1);
+        boolean isWithAnswers = Boolean.parseBoolean(RESTParser.getParameter(request, 2));
+
         if (sharingTestName.isEmpty()) {
             return;
         }
 
         try {
-            this.sharingTest = tryGetCurrentTestInStr(sharingTestName);
+            String sharingTest = tryGetCurrentTestInStr(sharingTestName);
+
+            if (!isWithAnswers) {
+                sharingTest = deleteAnswers(sharingTest);
+            }
+            this.sharingTest = sharingTest;
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
             this.responseTransmitter.response("ERROR/Test not found", id);
             return;
         }
 
         this.students.clear();
         this.isSharingTest = true;
+    }
+
+    private String deleteAnswers(String sharingTest) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        TestModel testModel = gson.fromJson(sharingTest, TestModel.class);
+        testModel.isWithAnswers = false;
+        for (QuestionModel question : testModel.questions) {
+            question.answer = "";
+        }
+
+        return gson.toJson(testModel);
     }
 
     private String tryGetCurrentTestInStr(String testName) throws IOException {
@@ -120,13 +149,17 @@ public class TestService extends Service {
 
     @Request(path = "stopSharingTest", params = {})
     private void stopSharingTest(String request, int id) {
+        log.info("TestService >> stopSharingTest");
+
         this.isSharingTest = false;
-        this.sharingTest = null;
+        this.sharingTest = "";
         this.students.clear();
     }
 
     @Request(path = "getStudents", params = {})
     private void getStudents(String request, int id) {
+        log.info("TestService >> getStudents");
+
         StudentListModel studentListModel = new StudentListModel(this.students.values().stream().toList());
 
         GsonBuilder builder = new GsonBuilder();

@@ -3,10 +3,12 @@ package com.psu.testserver.server.transmitter;
 import com.psu.testserver.server.ClientSession;
 import com.psu.testserver.server.Server;
 import com.psu.testserver.server.annotation.Inject;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
 public class ResponseTransmitter {
+    private static final Logger log = Logger.getLogger(ResponseTransmitter.class);
     @Inject
     Server server;
 
@@ -14,7 +16,7 @@ public class ResponseTransmitter {
         try {
             tryResponse(request, id);
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 

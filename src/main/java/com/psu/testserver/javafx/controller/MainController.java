@@ -1,7 +1,6 @@
 package com.psu.testserver.javafx.controller;
 
 import com.psu.testserver.Launcher;
-import com.psu.testserver.model.QuestionModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainController implements Controller {
+    private static final Logger log = Logger.getLogger(MainController.class);
     private final String TEST_DIRECTORY = "tests";
 
     @FXML
@@ -73,18 +74,18 @@ public class MainController implements Controller {
     }
 
     private void shareTestButtonClick(ActionEvent event) {
-        if(!isSelectItem()){
+        if (!isSelectItem()) {
             return;
         }
 
         try {
             tryStartSharingWindow();
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 
-    private boolean isSelectItem(){
+    private boolean isSelectItem() {
         return this.testListView.getSelectionModel().getSelectedItem() != null
                 && !this.testListView.getSelectionModel().getSelectedItem().isEmpty();
     }
@@ -92,6 +93,7 @@ public class MainController implements Controller {
     private void tryStartSharingWindow() throws IOException {
         SharingController sharingController = new SharingController();
         sharingController.setSharingTestName(this.testListView.getSelectionModel().getSelectedItem());
+        sharingController.setWithAnswers(this.isAddAnswer.isSelected());
 
         FXMLLoader fxmlLoader = new FXMLLoader(Launcher.class.getResource("sharing-view.fxml"));
         fxmlLoader.setController(sharingController);
@@ -113,7 +115,7 @@ public class MainController implements Controller {
         try {
             tryStartTestRedactorWindow(false);
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 
@@ -135,19 +137,19 @@ public class MainController implements Controller {
     }
 
     private void editTestButtonClick(ActionEvent actionEvent) {
-        if(!isSelectItem()){
+        if (!isSelectItem()) {
             return;
         }
 
         try {
             tryStartTestRedactorWindow(true);
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 
     private void deleteTestButtonClick(ActionEvent actionEvent) {
-        if(!isSelectItem()){
+        if (!isSelectItem()) {
             return;
         }
 
@@ -155,7 +157,7 @@ public class MainController implements Controller {
         File file = new File(String.format("tests\\%s", selectedTest));
 
         if (!file.delete()) {
-            System.out.println("Can't delete file");
+            log.error("Can't delete file");
             return;
         }
 

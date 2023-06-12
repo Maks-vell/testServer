@@ -7,11 +7,11 @@ public enum TestPassStatus {
 
     private final String str;
 
-    TestPassStatus(String str){
+    TestPassStatus(String str) {
         this.str = str;
     }
 
-    public String toString(){
+    public String toString() {
         return this.str;
     }
 }

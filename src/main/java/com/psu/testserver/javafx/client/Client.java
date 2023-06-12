@@ -1,12 +1,14 @@
 package com.psu.testserver.javafx.client;
 
 import com.psu.testserver.lib.RESTParser;
+import org.apache.log4j.Logger;
 
 import java.net.*;
 import java.io.*;
 import java.util.Objects;
 
 public class Client {
+    private static final Logger log = Logger.getLogger(Client.class);
     private final long RESPONSE_WAITING_TIME = 8 * 1000;
     private Socket socket;
     private BufferedReader inputStream;
@@ -17,7 +19,7 @@ public class Client {
 
     public void initConnection(String address, int port) throws IOException {
         this.socket = new Socket(address, port);
-        System.out.println("Connected to server");
+        log.info("Connected to server");
 
         this.inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.outputStream = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -27,7 +29,7 @@ public class Client {
         try {
             tryRequest(request);
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 
@@ -60,6 +62,8 @@ public class Client {
     }
 
     public void closeConnection() throws IOException {
+        log.info("Close connection");
+
         this.inputStream.close();
         this.outputStream.close();
         this.socket.close();

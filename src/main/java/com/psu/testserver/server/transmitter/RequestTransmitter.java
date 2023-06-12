@@ -7,24 +7,26 @@ import com.psu.testserver.lib.RESTParser;
 import com.psu.testserver.server.service.Service;
 import com.psu.testserver.server.service.ServiceMap;
 import lombok.Setter;
+import org.apache.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
 
 public class RequestTransmitter {
+    private static final Logger log = Logger.getLogger(RequestTransmitter.class);
     @Inject
     private ServiceMap serviceMap;
     @Setter
     private ApplicationContext context;
 
     public void request(String request, int id) {
-        System.out.printf("Request: %s from %d", request, id);
+        log.info("Request from " + -id + ": " + request);
 
         try {
             tryRequest(request, id);
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 

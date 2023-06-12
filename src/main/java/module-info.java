@@ -4,6 +4,7 @@ module com.psu.testserver {
     requires reflections;
     requires lombok;
     requires com.google.gson;
+    requires log4j;
 
 
     opens com.psu.testserver to javafx.fxml;

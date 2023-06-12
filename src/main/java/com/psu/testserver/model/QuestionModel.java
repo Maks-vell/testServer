@@ -5,7 +5,7 @@ public class QuestionModel {
     public String question;
     public String answer;
 
-    public QuestionModel(String question, String answer, int number){
+    public QuestionModel(String question, String answer, int number) {
         this.question = question;
         this.answer = answer;
         this.number = number;

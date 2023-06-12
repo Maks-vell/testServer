@@ -3,12 +3,14 @@ package com.psu.testserver.server.context;
 import com.psu.testserver.server.factory.BeanFactory;
 import com.psu.testserver.server.postprocessor.PostProcessor;
 import lombok.Setter;
+import org.apache.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ApplicationContext {
+    private static final Logger log = Logger.getLogger(ApplicationContext.class);
     @Setter
     private BeanFactory beanFactory;
     private final Map<Class, Object> beanMap = new ConcurrentHashMap<>();
@@ -33,7 +35,7 @@ public class ApplicationContext {
         try {
             tryCallPostProcessors(bean);
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 

@@ -2,11 +2,13 @@ package com.psu.testserver.server;
 
 import com.psu.testserver.server.context.ApplicationContext;
 import com.psu.testserver.server.transmitter.RequestTransmitter;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.Socket;
 
 public class ClientSession extends Thread {
+    private static final Logger log = Logger.getLogger(ClientSession.class);
     private final RequestTransmitter requestTransmitter;
     private final Socket clientSocket;
     private final int id;
@@ -27,7 +29,7 @@ public class ClientSession extends Thread {
         try {
             tryRun();
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
         }
     }
 

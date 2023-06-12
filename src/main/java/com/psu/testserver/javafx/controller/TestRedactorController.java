@@ -16,6 +16,7 @@ import javafx.scene.control.cell.ComboBoxListCell;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import lombok.Setter;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.List;
 
 
 public class TestRedactorController implements Controller {
+    private static final Logger log = Logger.getLogger(TestRedactorController.class);
 
     @FXML
     private Button readyButton;
@@ -83,7 +85,7 @@ public class TestRedactorController implements Controller {
         try {
             tryLoadEditableTest();
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
             Stage stage = (Stage) this.readyButton.getScene().getWindow();
             stage.close();
         }
@@ -180,7 +182,7 @@ public class TestRedactorController implements Controller {
         try {
             trySafeTestInJson();
         } catch (IOException ex) {
-            System.out.println("Can't save file");
+            log.error(ex.getMessage());
             return;
         }
 
