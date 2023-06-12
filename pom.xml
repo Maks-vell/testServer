@@ -94,7 +94,7 @@
                         </goals>
                         <configuration>
                             <headerType>gui</headerType>
-                            <outfile>out/artifacts/${project.artifactId}_jar/testClient.exe</outfile>
+                            <outfile>out/artifacts/${project.artifactId}_jar/testServer.exe</outfile>
                             <jar>out/artifacts/${project.artifactId}_jar/${project.artifactId}.jar</jar>
 
                             <dontWrapJar>false</dontWrapJar>
